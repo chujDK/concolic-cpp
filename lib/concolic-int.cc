@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 
+#include "executor.h"
 #include "concolic-int.h"
 #include "ast.h"
 
@@ -46,8 +47,20 @@ void ConcolicInt::astTest() {
   auto c  = a + b;
   int c_i = a + b;
   assert(c_i == c.concrete_);
+  auto d = a + 1;
+  auto e = 1 + a;
 
   concolic_cpp_debug_log("concolic add:\n", a, "+", b, "=", c);
+  concolic_cpp_debug_log("concolic add:\n", a, "+", 1, "=", d);
+  concolic_cpp_debug_log("concolic add:\n", 1, "+", a, "=", e);
+
+  ConcolicInt n{"n", 42};
+  ConcolicInt m{"m", 42};
+  auto eq = n == m;
+  concolic_cpp_debug_log("eq:", eq);
+  for (auto constr : Executor::get()->constraint()) {
+    std::cerr << constr << std::endl;
+  }
 }
 
 std::ostream& ConcolicInt::dump(std::ostream& o) const {
