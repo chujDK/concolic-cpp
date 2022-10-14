@@ -49,7 +49,7 @@ class Executor {
 
   void findInputForCurrentConstraint() {}
 
-  // seems like for template function
+  // seems like for the template function
   // we can't separate the definition and implementation
   template <typename FUNC, typename... ARGS>
   auto exec(FUNC func, ARGS... args) {

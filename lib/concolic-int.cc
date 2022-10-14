@@ -5,68 +5,49 @@
 #include "concolic-int.h"
 #include "ast.h"
 
-void ConcolicInt::z3Test() {
-  std::vector<int> v;
-  v.push_back(1);
-
-  z3::context c;
-  auto x = c.int_const("x");
-  auto y = c.int_const("y");
-
-  auto z = c.int_val(1);
-  std::cout << z << std::endl;
-
-  std::cout << x + y;
-
-  z3::solver s(c);
-  s.add(x * x + y * y == 25);
-  s.add(x < 0 && y < 0);
-  s.add(x + z == -2);
-  std::cout << s.check() << std::endl;
-
-  auto m = s.get_model();
-  std::cout << m << std::endl;
-  for (uint i = 0; i < m.size(); i++) {
-    auto v = m[i];
-    assert(v.arity() == 0);
-    std::cout << v.name() << " = " << m.get_const_interp(v) << std::endl;
-  }
-
-  std::cout << "x + y + 1 = " << m.eval(x + y + 1) << std::endl;
-}
-
-void ConcolicInt::astTest() {
-  auto x       = AstInt::make_int("x");
-  auto y       = AstInt::make_int("y");
-  auto ast_add = AstAdd::make_add(x, y);
-
-  concolic_cpp_debug_log("ast_add:", ast_add->_z3expr());
-
-  ConcolicInt a{"a", 20};
-  ConcolicInt b{"b", 22};
-  auto c  = a + b;
-  int c_i = a + b;
-  assert(c_i == c.concrete_);
-  auto d = a + 1;
-  auto e = 1 + a;
-
-  concolic_cpp_debug_log("concolic add:\n", a, "+", b, "=", c);
-  concolic_cpp_debug_log("concolic add:\n", a, "+", 1, "=", d);
-  concolic_cpp_debug_log("concolic add:\n", 1, "+", a, "=", e);
-
-  ConcolicInt n{"n", 42};
-  ConcolicInt m{"m", 42};
-  auto eq = n == m;
-  concolic_cpp_debug_log("eq:", eq);
-  for (auto constr : Executor::get()->constraint()) {
-    std::cerr << constr << std::endl;
-  }
-}
-
 std::ostream& ConcolicInt::dump(std::ostream& o) const {
   return o << "{symbolic: " << symbolic_->_z3expr() << "; "
            << "concrete: " << concrete_ << "}";
 }
+
+ConcolicInt::ConcolicInt(const char* var_name)
+    : symbolic_(AstInt::make_int(var_name)), concrete_(0) {}
+ConcolicInt::ConcolicInt(const char* var_name, const int init_val)
+    : symbolic_(AstInt::make_int(var_name)), concrete_(init_val) {}
+ConcolicInt::ConcolicInt(const int init_val)
+    : symbolic_(AstConstInt::make_const_int(init_val)), concrete_(init_val) {}
+ConcolicInt::ConcolicInt()
+    : symbolic_(AstConstInt::make_const_int(0)), concrete_(0) {}
+
+ConcolicInt::ConcolicInt(AstPtr symbolic, int concrete)
+    : symbolic_(std::move(symbolic)), concrete_(concrete) {}
+
+ConcolicInt ConcolicInt::operator=(const ConcolicInt& concolic_int) {
+  return {concolic_int.symbolic_, concolic_int.concrete_};
+}
+
+ConcolicInt ConcolicInt::operator=(const ConcolicInt&& concolic_int) noexcept {
+  return {concolic_int.symbolic_, concolic_int.concrete_};
+}
+
+ConcolicInt ConcolicInt::operator+(const ConcolicInt& rhs) const {
+  ConcolicInt res(AstAdd::make_add(symbolic_, rhs.symbolic_),
+                  concrete_ + rhs.concrete_);
+  return res;
+}
+
+  ConcolicInt ConcolicInt::operator+(const int rhs_int) const {
+    ConcolicInt rhs{rhs_int};
+    return *this + rhs;
+  }
+
+bool ConcolicInt::operator==(const ConcolicInt& rhs) const {
+  auto b = ConcolicBool(AstEq::make_eq(symbolic_, rhs.symbolic_),
+                        concrete_ == rhs.concrete_);
+  return b;
+}
+
+ConcolicInt::operator int() const { return concrete_; }
 
 std::ostream& operator<<(std::ostream& o, const ConcolicInt& c) {
   return c.dump(o);
