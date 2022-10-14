@@ -18,4 +18,6 @@ int32_t main() {
   for (auto constr : Executor::get()->constraint()) {
     std::cerr << constr << std::endl;
   }
+
+  Executor::get()->findInputForConstraint(Executor::get()->constraint());
 }

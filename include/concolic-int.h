@@ -12,6 +12,8 @@ class ConcolicInt {
   // for debug
   virtual std::ostream& dump(std::ostream& o) const;
 
+  void set_concrete(int x);
+
   ConcolicInt(const char* var_name);
   ConcolicInt(const char* var_name, const int init_val);
   ConcolicInt(const int init_val);

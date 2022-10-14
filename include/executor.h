@@ -1,4 +1,6 @@
 #pragma once
+#include <map>
+
 #include "z3++.h"
 #include "util.h"
 #include "concolic-int.h"
@@ -47,7 +49,7 @@ class Executor {
 
   void set_max_iter(unsigned int iter);
 
-  void findInputForCurrentConstraint();
+  bool findInputForConstraint(const z3::expr_vector& constraint);
 
   // seems like for the template function
   // we can't separate the definition and implementation
@@ -58,7 +60,7 @@ class Executor {
   }
 
  private:
-  std::vector<ConcolicInt> concolic_ints_;
+  std::map<std::string, ConcolicInt> concolic_ints_;
   Executor(unsigned int max_iter = 2000);
   unsigned int max_iter_;
 };

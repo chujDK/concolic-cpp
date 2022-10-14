@@ -11,6 +11,8 @@ class ConcolicBool {
  public:
   virtual std::ostream& dump(std::ostream& o) const;
 
+  void set_concrete(bool x);
+
   ConcolicBool(AstPtr symbolic, bool concrete);
 
   operator bool();
