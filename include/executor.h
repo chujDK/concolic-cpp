@@ -5,7 +5,6 @@
 #include "util.h"
 #include "concolic-int.h"
 
-namespace {
 class State {
  public:
   void addConstraint(const z3::expr& constraint) {
@@ -22,9 +21,9 @@ class State {
     }
   }
 
-  static State* get() {
+  static State& get() {
     static State s;
-    return &s;
+    return s;
   }
 
  private:
@@ -32,7 +31,6 @@ class State {
 
   z3::expr_vector constraints_;
 };
-}  // namespace
 
 class ConcolicInt;
 
@@ -43,24 +41,30 @@ class Executor {
   [[nodiscard]] ConcolicInt& mk_int(const char* var_name);
 
   // for debug..
-  const z3::expr_vector& constraint();
+  const z3::expr_vector& constraints();
 
-  static Executor* get();
+  static Executor& get();
 
   void set_max_iter(unsigned int iter);
 
   bool findInputForConstraint(const z3::expr_vector& constraint);
 
+  void forceBranch(const z3::expr_vector& _constraint, unsigned int nth_branch);
+
   // seems like for the template function
   // we can't separate the definition and implementation
   template <typename FUNC, typename... ARGS>
   auto exec(FUNC func, ARGS... args) {
-    auto v = func(args...);
-    return v;
+    for (unsigned int i = 0; i < max_iter_; i++) {
+      auto v = func(args...);
+      concolic_cpp_verbose_log("return:", v);
+      State::get().reset();
+    }
+    return;
   }
 
  private:
   std::map<std::string, ConcolicInt> concolic_ints_;
-  Executor(unsigned int max_iter = 2000);
+  Executor(unsigned int max_iter = 20);
   unsigned int max_iter_;
 };
