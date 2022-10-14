@@ -39,8 +39,6 @@ class AstConstInt : public AstConst {
  public:
   AstConstInt(int const_val) : AstConst(z3ctx->int_val(const_val)) {}
 
-  static AstPtr make_const_int() { return make_const_int(0); }
-
   static AstPtr make_const_int(int x) {
     return std::make_shared<AstConstInt>(x);
   }

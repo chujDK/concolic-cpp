@@ -9,21 +9,11 @@
 
 class ConcolicBool {
  public:
-  virtual std::ostream& dump(std::ostream& o) const {
-    return o << "{symbolic: " << symbolic_->_z3expr() << "; "
-             << "concrete: " << concrete_ << "}";
-  }
+  virtual std::ostream& dump(std::ostream& o) const;
 
-  ConcolicBool(AstPtr symbolic, bool concrete)
-      : symbolic_(std::move(symbolic)), concrete_(concrete) {
-    // NOTE: symbolic has been moved, use symbolic_ instead
-    Executor::get()->addConstraint(
-        AstLogicAnd::make_logic_and(symbolic_,
-                                    AstConstBool::make_const_bool(concrete))
-            ->_z3expr());
-  }
+  ConcolicBool(AstPtr symbolic, bool concrete);
 
-  operator bool() { return concrete_; }
+  operator bool();
 
  private:
   AstPtr symbolic_;

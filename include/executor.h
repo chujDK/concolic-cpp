@@ -1,6 +1,7 @@
 #pragma once
 #include "z3++.h"
 #include "util.h"
+#include "concolic-int.h"
 
 namespace {
 class State {
@@ -31,23 +32,22 @@ class State {
 };
 }  // namespace
 
+class ConcolicInt;
+
 class Executor {
  public:
-  void addConstraint(const z3::expr& constraint) {
-    State::get()->addConstraint(constraint);
-  }
+  void addConstraint(const z3::expr& constraint);
+
+  [[nodiscard]] ConcolicInt& mk_int(const char* var_name);
 
   // for debug..
-  const z3::expr_vector& constraint() { return State::get()->constraints(); }
+  const z3::expr_vector& constraint();
 
-  static Executor* get() {
-    static Executor e;
-    return &e;
-  }
+  static Executor* get();
 
-  void set_max_iter(unsigned int iter) { max_iter_ = iter; }
+  void set_max_iter(unsigned int iter);
 
-  void findInputForCurrentConstraint() {}
+  void findInputForCurrentConstraint();
 
   // seems like for the template function
   // we can't separate the definition and implementation
@@ -58,6 +58,7 @@ class Executor {
   }
 
  private:
-  Executor(unsigned int max_iter = 2000) : max_iter_(max_iter) {}
+  std::vector<ConcolicInt> concolic_ints_;
+  Executor(unsigned int max_iter = 2000);
   unsigned int max_iter_;
 };
