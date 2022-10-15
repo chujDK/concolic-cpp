@@ -24,17 +24,26 @@ ConcolicInt::ConcolicInt()
 ConcolicInt::ConcolicInt(AstPtr symbolic, int concrete)
     : symbolic_(std::move(symbolic)), concrete_(concrete) {}
 
-ConcolicInt ConcolicInt::operator=(const ConcolicInt& concolic_int) {
-  return {concolic_int.symbolic_, concolic_int.concrete_};
+ConcolicInt::ConcolicInt(const ConcolicInt& concolic_int) {
+  symbolic_ = concolic_int.symbolic_;
+  concrete_ = concolic_int.concrete_;
 }
 
-ConcolicInt ConcolicInt::operator=(const ConcolicInt&& concolic_int) noexcept {
-  return {concolic_int.symbolic_, concolic_int.concrete_};
+ConcolicInt::ConcolicInt(ConcolicInt&& concolic_int) noexcept {
+  symbolic_              = concolic_int.symbolic_;
+  concolic_int.symbolic_ = nullptr;
+  concrete_              = concolic_int.concrete_;
+}
+
+ConcolicInt& ConcolicInt::operator=(const int concrete_int) noexcept {
+  symbolic_ = AstConstInt::make_const_int(concrete_int);
+  concrete_ = concrete_int;
+  return *this;
 }
 
 ConcolicInt ConcolicInt::operator+(const ConcolicInt& rhs) const {
-  ConcolicInt res(AstAdd::make_add(symbolic_, rhs.symbolic_),
-                  concrete_ + rhs.concrete_);
+  ConcolicInt res{AstAdd::make_add(symbolic_, rhs.symbolic_),
+                  concrete_ + rhs.concrete_};
   return res;
 }
 

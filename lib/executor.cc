@@ -36,10 +36,14 @@ bool Executor::findInputForConstraint(const z3::expr_vector& constraint) {
     concolic_cpp_verbose_log("sat\n", constraint, "\non\n", model);
 
     for (unsigned int i = 0; i < model.size(); i++) {
-      auto v = model[i];
+      auto concolic = model[i];
+      auto concrete = model.get_const_interp(concolic);
+      concolic_cpp_log("setting ", concolic.name().str(), " = ", concrete);
       // search all the concolic_*_
-      ConcolicInt& concolic_int = concolic_ints_[v.name().str()];
-      concolic_int.set_concrete(model.get_const_interp(v));
+      auto concolic_int_iter = concolic_ints_.find(concolic.name().str());
+      if (concolic_int_iter != concolic_ints_.end()) {
+        concolic_int_iter->second.set_concrete(concrete.get_numeral_int());
+      }
     }
 
     return true;
@@ -49,14 +53,18 @@ bool Executor::findInputForConstraint(const z3::expr_vector& constraint) {
   }
 }
 
-void Executor::forceBranch(const z3::expr_vector& _constraint,
-                           unsigned int nth_branch) {
+z3::expr_vector Executor::forceBranch(const z3::expr_vector& _constraint,
+                                      unsigned int nth_branch) {
   if (nth_branch > _constraint.size()) {
     concolic_cpp_fatal("constraint exceed");
   }
   z3::expr_vector constraint{_constraint};
   constraint.resize(nth_branch + 1);
 
-  constraint[nth_branch] = _constraint[nth_branch] == z3ctx->bool_val(false);
+  auto not_branch = _constraint[nth_branch] == z3ctx->bool_val(false);
+
+  constraint.pop_back();
+  constraint.push_back(not_branch);
   concolic_cpp_debug_log("force constraint:", constraint);
+  return constraint;
 }

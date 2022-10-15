@@ -20,11 +20,12 @@ class ConcolicInt {
   ConcolicInt();
 
   ConcolicInt(AstPtr symbolic, int concrete);
-  ConcolicInt(const ConcolicInt& concolic_int) = default;
-  ConcolicInt(ConcolicInt&& concolic_int)      = default;
+  ConcolicInt(const ConcolicInt& concolic_int);
+  ConcolicInt(ConcolicInt&& concolic_int) noexcept;
 
-  ConcolicInt operator=(const ConcolicInt& concolic_int);
-  ConcolicInt operator=(const ConcolicInt&& concolic_int) noexcept;
+  ConcolicInt& operator=(const ConcolicInt& concolic_int) = default;
+  ConcolicInt& operator=(ConcolicInt&& concolic_int)      = default;
+  ConcolicInt& operator=(const int concrete_int) noexcept;
   ConcolicInt operator+(const ConcolicInt& rhs) const;
   ConcolicInt operator+(const int rhs_int) const;
   bool operator==(const ConcolicInt& rhs) const;
