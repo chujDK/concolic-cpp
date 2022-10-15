@@ -1,11 +1,12 @@
+#include "executor.h"
+
 #include <string>
 
 #include "util.h"
 #include "z3++.h"
-#include "executor.h"
 
 void Executor::addConstraint(const z3::expr& constraint) {
-  State::get()->addConstraint(constraint);
+  state.addConstraint(constraint);
 }
 
 [[nodiscard]] ConcolicInt& Executor::mk_int(const char* var_name) {
@@ -15,13 +16,11 @@ void Executor::addConstraint(const z3::expr& constraint) {
 }
 
 // for debug..
-const z3::expr_vector& Executor::constraint() {
-  return State::get()->constraints();
-}
+const z3::expr_vector& Executor::constraints() { return state.constraints(); }
 
-Executor* Executor::get() {
+Executor& Executor::get() {
   static Executor e;
-  return &e;
+  return e;
 }
 
 void Executor::set_max_iter(unsigned int iter) { max_iter_ = iter; }
@@ -29,7 +28,7 @@ void Executor::set_max_iter(unsigned int iter) { max_iter_ = iter; }
 bool Executor::findInputForConstraint(const z3::expr_vector& constraint) {
   auto solver = z3::solver(*z3ctx);
   solver.add(constraint);
-  // fork and solve, on timeout, kill it and give up
+  // TODO: fork and solve, on timeout, kill it and give up
 
   auto success = solver.check();
   if (success == z3::sat) {
@@ -50,4 +49,14 @@ bool Executor::findInputForConstraint(const z3::expr_vector& constraint) {
   }
 }
 
-Executor::Executor(unsigned int max_iter) : max_iter_(max_iter) {}
+void Executor::forceBranch(const z3::expr_vector& _constraint,
+                           unsigned int nth_branch) {
+  if (nth_branch > _constraint.size()) {
+    concolic_cpp_fatal("constraint exceed");
+  }
+  z3::expr_vector constraint{_constraint};
+  constraint.resize(nth_branch + 1);
+
+  constraint[nth_branch] = _constraint[nth_branch] == z3ctx->bool_val(false);
+  concolic_cpp_debug_log("force constraint:", constraint);
+}

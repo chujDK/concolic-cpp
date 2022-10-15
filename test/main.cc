@@ -11,13 +11,13 @@ int testf(int a, int b) {
 }
 
 int32_t main() {
-  auto a = Executor::get()->mk_int("a");
-  auto b = Executor::get()->mk_int("b");
-  auto v = Executor::get()->exec(testf, a, b);
-  std::cerr << v << std::endl;
-  for (auto constr : Executor::get()->constraint()) {
+  auto a = Executor::get().mk_int("a");
+  auto b = Executor::get().mk_int("b");
+  Executor::get().exec(testf, a, b);
+  for (auto constr : Executor::get().constraints()) {
     std::cerr << constr << std::endl;
   }
 
-  Executor::get()->findInputForConstraint(Executor::get()->constraint());
+  Executor::get().findInputForConstraint(Executor::get().constraints());
+  Executor::get().forceBranch(Executor::get().constraints(), 0);
 }

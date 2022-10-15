@@ -37,6 +37,7 @@ class AstConst : public Ast {
 
 class AstConstInt : public AstConst {
  public:
+  // TODO: change int to bit vector
   AstConstInt(int const_val) : AstConst(z3ctx->int_val(const_val)) {}
 
   static AstPtr make_const_int(int x) {
@@ -69,6 +70,7 @@ class AstInt : public AstId {
  public:
   using AstId::AstId;
   static AstPtr make_int(const char* var_name) {
+    // TODO: change int to bit vector
     return std::make_shared<AstInt>(z3ctx->int_const(var_name));
   }
 };

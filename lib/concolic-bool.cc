@@ -14,7 +14,7 @@ std::ostream& ConcolicBool::dump(std::ostream& o) const {
 ConcolicBool::ConcolicBool(AstPtr symbolic, bool concrete)
     : symbolic_(std::move(symbolic)), concrete_(concrete) {
   // NOTE: symbolic has been moved to symbolic_, use that instead
-  Executor::get()->addConstraint(
+  Executor::get().addConstraint(
       AstLogicAnd::make_logic_and(symbolic_,
                                   AstConstBool::make_const_bool(concrete))
           ->_z3expr());
