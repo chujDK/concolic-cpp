@@ -29,23 +29,34 @@ class Executor {
   // seems like for the template function
   // we can't separate the definition and implementation
   template <typename FUNC, typename... ARGS>
-  auto exec(FUNC func, ARGS&... args) {
-    std::set<z3::expr> constraint_checked;
-
-    // start without init, all symbolic init to default
-    ConcolicInt ret;
-    ret = func(args...);
-    concolic_cpp_verbose_log("returned: ", ret);
-
+  void exec(FUNC func, ARGS&... args) {
     current_iter_++;
+    if (current_iter_ >= max_iter_) {
+      return;
+    }
+    auto ret = func(args...);
+    concolic_cpp_verbose_log("returned: ", ret, "\nexplored: ", constraints());
 
     z3::expr_vector old_constraints = constraints();
     auto n_constraints              = old_constraints.size();
     for (size_t i = 0; i < n_constraints; i++) {
+      /*
+      if (constraint_checked.find(old_constraints[i]) !=
+          constraint_checked.end()) {
+        continue;
+      } else {
+        constraint_checked.insert(old_constraints[i]);
+      }
+      */
       auto force_constraints = forceBranch(old_constraints, i);
-      findInputForConstraint(force_constraints);
-      ret = func(args...);
-      concolic_cpp_verbose_log("returned: ", ret);
+      if (!findInputForConstraint(force_constraints)) {
+        continue;
+      }
+      state.reset();
+      exec(func, args...);
+      if (current_iter_ >= max_iter_) {
+        return;
+      }
     }
   }
 
@@ -53,11 +64,13 @@ class Executor {
   Executor(unsigned int max_iter = 20) : max_iter_(max_iter) {}
 
   std::map<std::string, ConcolicInt> concolic_ints_;
+  std::set<z3::expr> constraint_checked;
   unsigned int max_iter_;
   unsigned int current_iter_{0};
 
   class State {
    public:
+    // TODO: store AstPtr instead of z3::expr
     void addConstraint(const z3::expr& constraint) {
       constraints_.push_back(constraint);
     }

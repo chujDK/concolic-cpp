@@ -15,9 +15,7 @@ ConcolicBool::ConcolicBool(AstPtr symbolic, bool concrete)
     : symbolic_(std::move(symbolic)), concrete_(concrete) {
   // NOTE: symbolic has been moved to symbolic_, use that instead
   Executor::get().addConstraint(
-      AstLogicAnd::make_logic_and(symbolic_,
-                                  AstConstBool::make_const_bool(concrete))
-          ->_z3expr());
+      AstEq::make(symbolic_, AstConstBool::make(concrete))->_z3expr());
 }
 
 ConcolicBool::operator bool() { return concrete_; }

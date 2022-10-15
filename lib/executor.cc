@@ -33,6 +33,9 @@ bool Executor::findInputForConstraint(const z3::expr_vector& constraint) {
   auto success = solver.check();
   if (success == z3::sat) {
     auto model = solver.get_model();
+    if (model.size() == 0) {
+      return false;
+    }
     concolic_cpp_verbose_log("sat\n", constraint, "\non\n", model);
 
     for (unsigned int i = 0; i < model.size(); i++) {
@@ -62,6 +65,12 @@ z3::expr_vector Executor::forceBranch(const z3::expr_vector& _constraint,
   constraint.resize(nth_branch + 1);
 
   auto not_branch = _constraint[nth_branch] == z3ctx->bool_val(false);
+
+  auto solver = z3::solver(*z3ctx);
+  solver.add(not_branch);
+  solver.check();
+  auto m = solver.get_model();
+  std::cout << "sat: " << not_branch << "\non: " << m << "\n";
 
   constraint.pop_back();
   constraint.push_back(not_branch);

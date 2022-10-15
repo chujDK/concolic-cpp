@@ -6,7 +6,11 @@ int testf(int a, int b) {
   if (a == b) {
     return a + b;
   } else {
-    return a + 3;
+    if (a == 1) {
+      return a + 4;
+    } else {
+      return b;
+    }
   }
 }
 

@@ -13,13 +13,12 @@ std::ostream& ConcolicInt::dump(std::ostream& o) const {
 void ConcolicInt::set_concrete(int x) { concrete_ = x; }
 
 ConcolicInt::ConcolicInt(const char* var_name)
-    : symbolic_(AstInt::make_int(var_name)), concrete_(0) {}
+    : symbolic_(AstInt::make(var_name)), concrete_(0) {}
 ConcolicInt::ConcolicInt(const char* var_name, const int init_val)
-    : symbolic_(AstInt::make_int(var_name)), concrete_(init_val) {}
+    : symbolic_(AstInt::make(var_name)), concrete_(init_val) {}
 ConcolicInt::ConcolicInt(const int init_val)
-    : symbolic_(AstConstInt::make_const_int(init_val)), concrete_(init_val) {}
-ConcolicInt::ConcolicInt()
-    : symbolic_(AstConstInt::make_const_int(0)), concrete_(0) {}
+    : symbolic_(AstConstInt::make(init_val)), concrete_(init_val) {}
+ConcolicInt::ConcolicInt() : symbolic_(AstConstInt::make(0)), concrete_(0) {}
 
 ConcolicInt::ConcolicInt(AstPtr symbolic, int concrete)
     : symbolic_(std::move(symbolic)), concrete_(concrete) {}
@@ -36,13 +35,13 @@ ConcolicInt::ConcolicInt(ConcolicInt&& concolic_int) noexcept {
 }
 
 ConcolicInt& ConcolicInt::operator=(const int concrete_int) noexcept {
-  symbolic_ = AstConstInt::make_const_int(concrete_int);
+  symbolic_ = AstConstInt::make(concrete_int);
   concrete_ = concrete_int;
   return *this;
 }
 
 ConcolicInt ConcolicInt::operator+(const ConcolicInt& rhs) const {
-  ConcolicInt res{AstAdd::make_add(symbolic_, rhs.symbolic_),
+  ConcolicInt res{AstAdd::make(symbolic_, rhs.symbolic_),
                   concrete_ + rhs.concrete_};
   return res;
 }
@@ -53,9 +52,14 @@ ConcolicInt ConcolicInt::operator+(const ConcolicInt& rhs) const {
   }
 
 bool ConcolicInt::operator==(const ConcolicInt& rhs) const {
-  auto b = ConcolicBool(AstEq::make_eq(symbolic_, rhs.symbolic_),
+  auto b = ConcolicBool(AstEq::make(symbolic_, rhs.symbolic_),
                         concrete_ == rhs.concrete_);
   return b;
+}
+
+bool ConcolicInt::operator==(const int rhs) const {
+  auto concolic_rhs = ConcolicInt(rhs);
+  return *this == concolic_rhs;
 }
 
 ConcolicInt::operator int() const { return concrete_; }

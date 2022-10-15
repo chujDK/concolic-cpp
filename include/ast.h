@@ -20,10 +20,10 @@ class AstUnaryOp : public Ast {
  public:
   [[nodiscard]] z3::expr _z3expr() const override = 0;
 
-  AstUnaryOp(z3::expr opr) : operand_(std::move(opr)) {}
+  AstUnaryOp(AstPtr opr) : operand_(std::move(opr)) {}
 
  protected:
-  z3::expr operand_;
+  AstPtr operand_;
 };
 
 class AstConst : public Ast {
@@ -41,9 +41,7 @@ class AstConstInt : public AstConst {
   // TODO: change int to bit vector
   AstConstInt(int const_val) : AstConst(z3ctx->int_val(const_val)) {}
 
-  static AstPtr make_const_int(int x) {
-    return std::make_shared<AstConstInt>(x);
-  }
+  static AstPtr make(int x) { return std::make_shared<AstConstInt>(x); }
 
  protected:
 };
@@ -52,10 +50,8 @@ class AstConstBool : public AstConst {
  public:
   AstConstBool(bool b) : AstConst(z3ctx->bool_val(b)) {}
 
-  static AstPtr make_const_bool() { return make_const_bool(true); }
-  static AstPtr make_const_bool(bool b) {
-    return std::make_shared<AstConstBool>(b);
-  }
+  static AstPtr make() { return make(true); }
+  static AstPtr make(bool b) { return std::make_shared<AstConstBool>(b); }
 };
 
 class AstId : public Ast {
@@ -70,7 +66,7 @@ class AstId : public Ast {
 class AstInt : public AstId {
  public:
   using AstId::AstId;
-  static AstPtr make_int(const char* var_name) {
+  static AstPtr make(const char* var_name) {
     // TODO: change int to bit vector
     return std::make_shared<AstInt>(z3ctx->int_const(var_name));
   }
@@ -78,13 +74,13 @@ class AstInt : public AstId {
 
 class AstBool : public AstId {
  public:
-  static AstPtr make_bool() {
+  static AstPtr make() {
     auto var_name = generate_uniq_varname();
-    return make_bool(var_name.c_str());
+    return make(var_name.c_str());
   }
 
   using AstId::AstId;
-  static AstPtr make_bool(const char* var_name) {
+  static AstPtr make(const char* var_name) {
     return std::make_shared<AstBool>(z3ctx->bool_const(var_name));
   }
 };
@@ -93,20 +89,20 @@ class AstBinaryOp : public Ast {
  public:
   [[nodiscard]] z3::expr _z3expr() const override = 0;
 
-  AstBinaryOp(z3::expr lhs, z3::expr rhs)
+  AstBinaryOp(AstPtr lhs, AstPtr rhs)
       : lhs_(std::move(lhs)), rhs_(std::move(rhs)) {}
 
  protected:
-  z3::expr lhs_;
-  z3::expr rhs_;
+  AstPtr lhs_;
+  AstPtr rhs_;
 };
 
 class AstLogicAnd : public AstBinaryOp {
   // &&
  public:
   [[nodiscard]] z3::expr _z3expr() const override;
-  static AstPtr make_logic_and(const AstPtr& a, const AstPtr& b) {
-    return std::make_shared<AstLogicAnd>(a->_z3expr(), b->_z3expr());
+  static AstPtr make(const AstPtr& a, const AstPtr& b) {
+    return std::make_shared<AstLogicAnd>(a, b);
   }
 
   using AstBinaryOp::AstBinaryOp;
@@ -118,8 +114,8 @@ class AstEq : public AstBinaryOp {
  public:
   [[nodiscard]] z3::expr _z3expr() const override;
 
-  static AstPtr make_eq(const AstPtr& a, const AstPtr& b) {
-    return std::make_shared<AstEq>(a->_z3expr(), b->_z3expr());
+  static AstPtr make(const AstPtr& a, const AstPtr& b) {
+    return std::make_shared<AstEq>(a, b);
   }
 
   using AstBinaryOp::AstBinaryOp;
@@ -131,8 +127,8 @@ class AstAdd : public AstBinaryOp {
  public:
   [[nodiscard]] z3::expr _z3expr() const override;
 
-  static AstPtr make_add(const AstPtr& a, const AstPtr& b) {
-    return std::make_shared<AstAdd>(a->_z3expr(), b->_z3expr());
+  static AstPtr make(const AstPtr& a, const AstPtr& b) {
+    return std::make_shared<AstAdd>(a, b);
   }
 
   using AstBinaryOp::AstBinaryOp;

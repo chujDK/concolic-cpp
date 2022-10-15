@@ -7,11 +7,13 @@ std::ostream& operator<<(std::ostream& o, const Ast& ast) {
   return ast.dump(o);
 }
 
-z3::expr AstLogicAnd::_z3expr() const { return lhs_ && rhs_; }
+z3::expr AstLogicAnd::_z3expr() const {
+  return lhs_->_z3expr() && rhs_->_z3expr();
+}
 
-z3::expr AstEq::_z3expr() const { return lhs_ == rhs_; }
+z3::expr AstEq::_z3expr() const { return lhs_->_z3expr() == rhs_->_z3expr(); }
 
-z3::expr AstAdd::_z3expr() const { return lhs_ + rhs_; }
+z3::expr AstAdd::_z3expr() const { return lhs_->_z3expr() + rhs_->_z3expr(); }
 
 z3::expr AstConst::_z3expr() const { return const_; }
 

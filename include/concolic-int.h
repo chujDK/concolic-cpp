@@ -30,6 +30,7 @@ class ConcolicInt {
   ConcolicInt operator+(const ConcolicInt& rhs) const;
   ConcolicInt operator+(const int rhs_int) const;
   bool operator==(const ConcolicInt& rhs) const;
+  bool operator==(const int rhs) const;
   operator int() const;
 
  private:
