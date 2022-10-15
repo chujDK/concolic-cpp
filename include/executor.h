@@ -35,7 +35,7 @@ class Executor {
       return;
     }
     auto ret = func(args...);
-    concolic_cpp_verbose_log("returned: ", ret, "\nexplored: ", constraints());
+    concolic_cpp_log("returned: ", ret, "\nexplored: ", constraints());
 
     std::vector<z3::expr> old_constraints{constraints()};
     auto n_constraints = constraints().size();
@@ -87,6 +87,10 @@ class Executor {
     State() = default;
 
    private:
+    // NOTE: I didn't use z3::expr_vector, because i don't
+    // know how to copy one expr_vector to another.
+    // In some blog I found it seems the z3::expr_vector is
+    // not designed to do so, so here I use std::vector
     std::vector<z3::expr> constraints_;
   } state;
 };
