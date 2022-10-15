@@ -40,15 +40,23 @@ and produce out put like
 [+] returned:  {symbolic: (+ a b); concrete: 0} 
 explored:  [(= a b)]
  
+[+] setting  a  =  1 
+[+] setting  b  =  0 
 [+] returned:  {symbolic: (+ a 4); concrete: 5} 
 explored:  [(not (= a b)),(= a 1)]
  
+[+] setting  b  =  0 
+[+] setting  a  =  0 
 [+] returned:  {symbolic: (+ a b); concrete: 0} 
 explored:  [(= a b)]
  
+[+] setting  a  =  2 
+[+] setting  b  =  3 
 [+] returned:  {symbolic: b; concrete: 3} 
 explored:  [(not (= a b)),(not (= a 1))]
  
+[+] setting  b  =  2 
+[+] setting  a  =  1 
 [+] returned:  {symbolic: (+ a 4); concrete: 5} 
 explored:  [(not (= a b)),(= a 1)]
 ```

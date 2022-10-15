@@ -54,8 +54,7 @@ bool Executor::findInputForConstraint(
     for (unsigned int i = 0; i < model.size(); i++) {
       auto concolic = model[i];
       auto concrete = model.get_const_interp(concolic);
-      concolic_cpp_verbose_log("setting ", concolic.name().str(), " = ",
-                               concrete);
+      concolic_cpp_log("setting ", concolic.name().str(), " = ", concrete);
       // search all the concolic_*_
       auto concolic_int_iter = concolic_ints_.find(concolic.name().str());
       if (concolic_int_iter != concolic_ints_.end()) {
