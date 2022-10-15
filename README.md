@@ -2,10 +2,10 @@
 
 this is a concolic executor on minimal C, currently only support:
 
-[x] int (with no bound)
-[x] bool
-[x] + operator of int
-[x] == operator of int
+- [x] int (with no bound)
+- [x] bool
+- [x] + operator of int
+- [x] == operator of int
 
 this project is a (bad and minimal) re-implementation in C++ of the [cs6.858's symbolic lab](https://github.com/lxs137/MIT6.858/tree/master/lab3)
 
