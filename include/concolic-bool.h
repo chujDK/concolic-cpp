@@ -14,6 +14,7 @@ class ConcolicBool {
   void set_concrete(bool x);
 
   ConcolicBool(AstPtr symbolic, bool concrete);
+  virtual ~ConcolicBool() = default;
 
   operator bool();
 

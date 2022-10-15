@@ -18,6 +18,7 @@ class ConcolicInt {
   ConcolicInt(const char* var_name, const int init_val);
   ConcolicInt(const int init_val);
   ConcolicInt();
+  virtual ~ConcolicInt() = default;
 
   ConcolicInt(AstPtr symbolic, int concrete);
   ConcolicInt(const ConcolicInt& concolic_int);

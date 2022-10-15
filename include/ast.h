@@ -9,6 +9,7 @@ class Ast {
  public:
   virtual std::ostream& dump(std::ostream& o) const;
   [[nodiscard]] virtual z3::expr _z3expr() const = 0;
+  virtual ~Ast()                                 = default;
 
  private:
 };
