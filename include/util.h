@@ -6,6 +6,17 @@
 void print_backtrace();
 
 namespace {
+
+// for debugging..
+template <typename T>
+std::ostream& operator<<(std::ostream& s, const std::vector<T>& t) {
+  s << "[";
+  for (std::size_t i = 0; i < t.size(); i++) {
+    s << t[i] << (i == t.size() - 1 ? "" : ",");
+  }
+  return s << "]" << std::endl;
+}
+
 template <typename T, typename... T0>
 void print2(T t, T0... t0) {
   std::cerr << t << " ";

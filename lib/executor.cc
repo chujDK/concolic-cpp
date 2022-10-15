@@ -5,6 +5,14 @@
 #include "util.h"
 #include "z3++.h"
 
+template <typename T>
+static void vector_shrink(std::vector<T>& v, size_t size) {
+  auto v_size = v.size();
+  for (size_t i = size; i < v_size; i++) {
+    v.pop_back();
+  }
+}
+
 void Executor::addConstraint(const z3::expr& constraint) {
   state.addConstraint(constraint);
 }
@@ -16,7 +24,9 @@ void Executor::addConstraint(const z3::expr& constraint) {
 }
 
 // for debug..
-const z3::expr_vector& Executor::constraints() { return state.constraints(); }
+const std::vector<z3::expr>& Executor::constraints() {
+  return state.constraints();
+}
 
 Executor& Executor::get() {
   static Executor e;
@@ -25,9 +35,12 @@ Executor& Executor::get() {
 
 void Executor::set_max_iter(unsigned int iter) { max_iter_ = iter; }
 
-bool Executor::findInputForConstraint(const z3::expr_vector& constraint) {
+bool Executor::findInputForConstraint(
+    const std::vector<z3::expr>& constraints) {
   auto solver = z3::solver(*z3ctx);
-  solver.add(constraint);
+  for (const auto& constraint : constraints) {
+    solver.add(constraint);
+  }
   // TODO: fork and solve, on timeout, kill it and give up
 
   auto success = solver.check();
@@ -36,7 +49,7 @@ bool Executor::findInputForConstraint(const z3::expr_vector& constraint) {
     if (model.size() == 0) {
       return false;
     }
-    concolic_cpp_verbose_log("sat\n", constraint, "\non\n", model);
+    concolic_cpp_verbose_log("sat\n", constraints, "\non\n", model);
 
     for (unsigned int i = 0; i < model.size(); i++) {
       auto concolic = model[i];
@@ -51,18 +64,18 @@ bool Executor::findInputForConstraint(const z3::expr_vector& constraint) {
 
     return true;
   } else {
-    concolic_cpp_verbose_log("unsat on", constraint);
+    concolic_cpp_verbose_log("unsat on", constraints);
     return false;
   }
 }
 
-z3::expr_vector Executor::forceBranch(const z3::expr_vector& _constraint,
-                                      unsigned int nth_branch) {
+std::vector<z3::expr> Executor::forceBranch(
+    const std::vector<z3::expr>& _constraint, unsigned int nth_branch) {
   if (nth_branch > _constraint.size()) {
     concolic_cpp_fatal("constraint exceed");
   }
-  z3::expr_vector constraint{_constraint};
-  constraint.resize(nth_branch + 1);
+  std::vector<z3::expr> constraint{_constraint};
+  vector_shrink(constraint, nth_branch + 1);
 
   auto not_branch = _constraint[nth_branch] == z3ctx->bool_val(false);
 
