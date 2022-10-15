@@ -37,17 +37,16 @@ class Executor {
     auto ret = func(args...);
     concolic_cpp_verbose_log("returned: ", ret, "\nexplored: ", constraints());
 
-    z3::expr_vector old_constraints = constraints();
-    auto n_constraints              = old_constraints.size();
+    z3::expr_vector old_constraints{constraints()};
+    auto n_constraints = constraints().size();
     for (size_t i = 0; i < n_constraints; i++) {
-      /*
-      if (constraint_checked.find(old_constraints[i]) !=
+      const auto old_constraint_str = old_constraints[i].to_string();
+      if (constraint_checked.find(old_constraint_str) !=
           constraint_checked.end()) {
         continue;
       } else {
-        constraint_checked.insert(old_constraints[i]);
+        constraint_checked.insert(old_constraint_str);
       }
-      */
       auto force_constraints = forceBranch(old_constraints, i);
       if (!findInputForConstraint(force_constraints)) {
         continue;
@@ -64,7 +63,7 @@ class Executor {
   Executor(unsigned int max_iter = 20) : max_iter_(max_iter) {}
 
   std::map<std::string, ConcolicInt> concolic_ints_;
-  std::set<z3::expr> constraint_checked;
+  std::set<std::string> constraint_checked;
   unsigned int max_iter_;
   unsigned int current_iter_{0};
 
@@ -72,7 +71,7 @@ class Executor {
    public:
     // TODO: store AstPtr instead of z3::expr
     void addConstraint(const z3::expr& constraint) {
-      constraints_.push_back(constraint);
+      constraints_.push_back(constraint.simplify());
     }
 
     const z3::expr_vector& constraints() { return constraints_; }

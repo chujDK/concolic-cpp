@@ -66,14 +66,8 @@ z3::expr_vector Executor::forceBranch(const z3::expr_vector& _constraint,
 
   auto not_branch = _constraint[nth_branch] == z3ctx->bool_val(false);
 
-  auto solver = z3::solver(*z3ctx);
-  solver.add(not_branch);
-  solver.check();
-  auto m = solver.get_model();
-  std::cout << "sat: " << not_branch << "\non: " << m << "\n";
-
   constraint.pop_back();
-  constraint.push_back(not_branch);
+  constraint.push_back(not_branch.simplify());
   concolic_cpp_debug_log("force constraint:", constraint);
   return constraint;
 }
