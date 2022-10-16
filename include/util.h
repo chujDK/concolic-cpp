@@ -14,7 +14,7 @@ std::ostream& operator<<(std::ostream& s, const std::vector<T>& t) {
   for (std::size_t i = 0; i < t.size(); i++) {
     s << t[i] << (i == t.size() - 1 ? "" : ",");
   }
-  return s << "]" << std::endl;
+  return s << "]";
 }
 
 template <typename T, typename... T0>

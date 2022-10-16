@@ -36,18 +36,21 @@ class Executor {
     }
     auto ret = func(args...);
     concolic_cpp_log("returned: ", ret, "\nexplored: ", constraints());
+    for (const auto& explored_constraint : constraints()) {
+      constraint_checked.insert(explored_constraint.to_string());
+    }
 
     std::vector<z3::expr> old_constraints{constraints()};
     auto n_constraints = constraints().size();
     for (size_t i = 0; i < n_constraints; i++) {
-      const auto old_constraint_str = old_constraints[i].to_string();
-      if (constraint_checked.find(old_constraint_str) !=
+      auto force_constraints           = forceBranch(old_constraints, i);
+      const auto forced_constraint_str = force_constraints[i].to_string();
+      if (constraint_checked.find(forced_constraint_str) !=
           constraint_checked.end()) {
         continue;
       } else {
-        constraint_checked.insert(old_constraint_str);
+        constraint_checked.insert(forced_constraint_str);
       }
-      auto force_constraints = forceBranch(old_constraints, i);
       if (!findInputForConstraint(force_constraints)) {
         continue;
       }
