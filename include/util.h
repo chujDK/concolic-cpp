@@ -45,7 +45,7 @@ void print2file(T t, T0... t0) {
   // TODO: replace cout to a fstream
   std::cout << t << " ";
   if constexpr (sizeof...(t0) > 0) {
-    print2(t0...);
+    print2file(t0...);
   } else {
     std::cout << "\n";
   }
