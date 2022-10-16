@@ -1,5 +1,7 @@
 #pragma once
 #include <string>
+#include <vector>
+#include <map>
 
 #include "z3++.h"
 
@@ -17,13 +19,35 @@ std::ostream& operator<<(std::ostream& s, const std::vector<T>& t) {
   return s << "]";
 }
 
+template <typename KEY, typename VALUE>
+std::ostream& operator<<(std::ostream& s, const std::map<KEY, VALUE>& t) {
+  s << "{";
+  char comma = '\x00';
+  for (const auto& kv : t) {
+    s << comma << kv.first << ":" << kv.second;
+    comma = ',';
+  }
+  return s << "}";
+}
+
 template <typename T, typename... T0>
 void print2(T t, T0... t0) {
   std::cerr << t << " ";
   if constexpr (sizeof...(t0) > 0) {
     print2(t0...);
   } else {
-    std::cerr << std::endl;
+    std::cerr << "\n";
+  }
+}
+
+template <typename T, typename... T0>
+void print2file(T t, T0... t0) {
+  // TODO: replace cout to a fstream
+  std::cout << t << " ";
+  if constexpr (sizeof...(t0) > 0) {
+    print2(t0...);
+  } else {
+    std::cout << "\n";
   }
 }
 }  // namespace
@@ -61,6 +85,11 @@ void concolic_cpp_verbose_log(Args... args) {
 #ifdef VERBOSE
   print2("\033[1;92m[+]\033[0m", args...);
 #endif
+}
+
+template <typename... Args>
+void concolic_cpp_file_output(Args... args) {
+  print2file(args...);
 }
 
 const std::string generate_uniq_varname();

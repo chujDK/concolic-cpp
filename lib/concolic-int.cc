@@ -11,6 +11,7 @@ std::ostream& ConcolicInt::dump(std::ostream& o) const {
 }
 
 void ConcolicInt::set_concrete(int x) { concrete_ = x; }
+int ConcolicInt::concrete() { return concrete_; }
 
 ConcolicInt::ConcolicInt(const char* var_name)
     : symbolic_(AstInt::make(var_name)), concrete_(0) {}

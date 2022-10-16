@@ -34,6 +34,7 @@ class Executor {
     if (current_iter_ >= max_iter_) {
       return;
     }
+    concolic_cpp_file_output("{\"input:\"", concolic_ints_, "}");
     auto ret = func(args...);
     concolic_cpp_log("returned: ", ret, "\nexplored: ", constraints());
     for (const auto& explored_constraint : constraints()) {

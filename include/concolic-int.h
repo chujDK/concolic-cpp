@@ -13,6 +13,7 @@ class ConcolicInt {
   virtual std::ostream& dump(std::ostream& o) const;
 
   void set_concrete(int x);
+  int concrete();
 
   ConcolicInt(const char* var_name);
   ConcolicInt(const char* var_name, const int init_val);
