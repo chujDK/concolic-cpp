@@ -34,9 +34,10 @@ class Executor {
     if (current_iter_ >= max_iter_) {
       return;
     }
-    concolic_cpp_file_output("{\"input:\"", concolic_ints_, "}");
+    concolic_cpp_file_output("{\"input\": ", concolic_ints_, ",");
     auto ret = func(args...);
-    concolic_cpp_log("returned: ", ret, "\nexplored: ", constraints());
+    concolic_cpp_file_output("\"returned\": ", ret,
+                             ",\n\"explored\": ", constraints(), "},");
     for (const auto& explored_constraint : constraints()) {
       constraint_checked.insert(explored_constraint.to_string());
     }
@@ -64,7 +65,7 @@ class Executor {
   }
 
  private:
-  Executor(unsigned int max_iter = 20) : max_iter_(max_iter) {}
+  Executor(unsigned int max_iter = 200) : max_iter_(max_iter) {}
 
   std::map<std::string, ConcolicInt> concolic_ints_;
   std::set<std::string> constraint_checked;

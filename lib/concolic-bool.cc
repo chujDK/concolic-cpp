@@ -7,8 +7,10 @@ std::ostream& operator<<(std::ostream& o, const ConcolicBool& c) {
 void ConcolicBool::set_concrete(bool x) { concrete_ = x; }
 
 std::ostream& ConcolicBool::dump(std::ostream& o) const {
-  return o << "{symbolic: " << symbolic_->_z3expr() << "; "
-           << "concrete: " << concrete_ << "}";
+  return o << "{\"symbolic\": "
+           << "\"" << symbolic_->_z3expr() << "\""
+           << "; "
+           << "\"concrete\": " << concrete_ << "}";
 }
 
 ConcolicBool::ConcolicBool(AstPtr symbolic, bool concrete)

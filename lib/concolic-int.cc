@@ -6,8 +6,10 @@
 #include "ast.h"
 
 std::ostream& ConcolicInt::dump(std::ostream& o) const {
-  return o << "{symbolic: " << symbolic_->_z3expr() << "; "
-           << "concrete: " << concrete_ << "}";
+  return o << "{\"symbolic\": "
+           << "\"" << symbolic_->_z3expr() << "\""
+           << ", "
+           << "\"concrete\": " << concrete_ << "}";
 }
 
 void ConcolicInt::set_concrete(int x) { concrete_ = x; }
@@ -59,8 +61,33 @@ bool ConcolicInt::operator==(const ConcolicInt& rhs) const {
 }
 
 bool ConcolicInt::operator==(const int rhs) const {
-  auto concolic_rhs = ConcolicInt(rhs);
+  ConcolicInt concolic_rhs{rhs};
   return *this == concolic_rhs;
+}
+
+ConcolicInt operator+(const int lhs, const ConcolicInt& rhs) {
+  ConcolicInt concolic_lhs{lhs};
+  return concolic_lhs + rhs;
+}
+bool operator==(const int lhs, const ConcolicInt& rhs) {
+  ConcolicInt concolic_lhs{lhs};
+  return concolic_lhs == rhs;
+}
+
+bool ConcolicInt::operator!=(const ConcolicInt& rhs) const {
+  auto b = ConcolicBool(AstNeq::make(symbolic_, rhs.symbolic_),
+                        concrete_ != rhs.concrete_);
+  return b;
+}
+
+bool ConcolicInt::operator!=(const int rhs) const {
+  ConcolicInt concolic_rhs{rhs};
+  return *this != concolic_rhs;
+}
+
+bool operator!=(const int lhs, const ConcolicInt& rhs) {
+  ConcolicInt concolic_lhs{lhs};
+  return concolic_lhs != rhs;
 }
 
 ConcolicInt::operator int() const { return concrete_; }

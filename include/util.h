@@ -10,11 +10,18 @@ void print_backtrace();
 namespace {
 
 // for debugging..
+
 template <typename T>
-std::ostream& operator<<(std::ostream& s, const std::vector<T>& t) {
+std::ostream& operator<<(std::ostream& s, const std::vector<T>& t);
+
+template <>
+std::ostream& operator<<(std::ostream& s, const std::vector<z3::expr>& t) {
   s << "[";
-  for (std::size_t i = 0; i < t.size(); i++) {
-    s << t[i] << (i == t.size() - 1 ? "" : ",");
+  char comma = ' ';
+
+  for (const z3::expr& expr : t) {
+    s << comma << "\"" << expr << "\"";
+    comma = ',';
   }
   return s << "]";
 }
@@ -22,9 +29,10 @@ std::ostream& operator<<(std::ostream& s, const std::vector<T>& t) {
 template <typename KEY, typename VALUE>
 std::ostream& operator<<(std::ostream& s, const std::map<KEY, VALUE>& t) {
   s << "{";
-  char comma = '\x00';
+  char comma = ' ';
   for (const auto& kv : t) {
-    s << comma << kv.first << ":" << kv.second;
+    s << comma << "\"" << kv.first << "\""
+      << ":" << kv.second;
     comma = ',';
   }
   return s << "}";

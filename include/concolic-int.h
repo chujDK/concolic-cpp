@@ -28,15 +28,26 @@ class ConcolicInt {
   ConcolicInt& operator=(const ConcolicInt& concolic_int) = default;
   ConcolicInt& operator=(ConcolicInt&& concolic_int)      = default;
   ConcolicInt& operator=(const int concrete_int) noexcept;
+
   ConcolicInt operator+(const ConcolicInt& rhs) const;
   ConcolicInt operator+(const int rhs_int) const;
+  friend ConcolicInt operator+(const int lhs, const ConcolicInt& rhs);
+
   bool operator==(const ConcolicInt& rhs) const;
   bool operator==(const int rhs) const;
+  friend bool operator==(const int lhs, const ConcolicInt& rhs);
+
+  bool operator!=(const ConcolicInt& rhs) const;
+  bool operator!=(const int rhs) const;
+  friend bool operator!=(const int lhs, const ConcolicInt& rhs);
   operator int() const;
 
  private:
   AstPtr symbolic_;
   int concrete_;
 };
+ConcolicInt operator+(const int lhs, const ConcolicInt& rhs);
+bool operator==(const int lhs, const ConcolicInt& rhs);
+bool operator!=(const int lhs, const ConcolicInt& rhs);
 
 std::ostream& operator<<(std::ostream& o, const ConcolicInt& c);

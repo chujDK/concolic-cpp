@@ -3,6 +3,9 @@
 #include "concolic.h"
 
 int testf(int a, int b) {
+  for (; a != 10; a = a + 1) {
+  }
+
   if (a == b) {
     return a + b;
   } else {

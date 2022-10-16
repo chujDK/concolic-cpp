@@ -123,6 +123,19 @@ class AstEq : public AstBinaryOp {
  protected:
 };
 
+class AstNeq : public AstBinaryOp {
+ public:
+  [[nodiscard]] z3::expr _z3expr() const override;
+
+  static AstPtr make(const AstPtr& a, const AstPtr& b) {
+    return std::make_shared<AstNeq>(a, b);
+  }
+
+  using AstBinaryOp::AstBinaryOp;
+
+ protected:
+};
+
 class AstAdd : public AstBinaryOp {
  public:
   [[nodiscard]] z3::expr _z3expr() const override;
